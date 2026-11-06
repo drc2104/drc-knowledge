@@ -55,7 +55,7 @@ function viewSec(){
   ${t.title?`<h3 style="font-size:18px;color:var(--muted);font-weight:700">${t.title}</h3>`:""}
   ${t.q?`<h2 class="kin">${kin(t.q,t.hl)}</h2>`:""}
   <div class="cols"><div><h3>핵심 내용</h3><ul class="pts stagger">${(t.pts||[]).map((p,j)=>`<li style="animation-delay:${.15+j*.08}s">${p}</li>`).join("")}</ul></div>
-  <div>${t.video?vidHTML(t.video):""}${shiftHTML(t.shift)}${numsHTML(t.nums)}${barsHTML(t.bars)}${tableHTML(t.table)}</div></div>
+  <div>${t.video?vidHTML(t.video):""}${(t.slides||[]).map(s=>`<figure class="slide"><a href="${s.src}" target="_blank" rel="noopener"><img src="${s.src}" alt="${esc(s.cap)}" loading="lazy"></a><figcaption>${s.cap}</figcaption></figure>`).join("")}${shiftHTML(t.shift)}${numsHTML(t.nums)}${barsHTML(t.bars)}${tableHTML(t.table)}</div></div>
   <p class="src">출처: ${t.src||""}${t.grade?`<span class="grade ${t.grade==="확인"?"ok":"as"}">${t.grade==="확인"?"원문 확인":"추정 포함"}</span>`:""}</p>
   <div class="navrow">${i>0?`<button class="btn" data-t="${i-1}">이전: ${S[i-1].name}</button>`:""}${i<S.length-1?`<button class="btn p" data-t="${i+1}">다음: ${S[i+1].name}</button>`:`<button class="btn p" data-cat="${D.flow&&D.flow.length?"flow":"apply"}">다음 묶음으로</button>`}</div>
  </div></div>`}

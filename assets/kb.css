@@ -161,3 +161,6 @@ ul.pts li b{color:var(--ink)}
 .row .go{font-size:14px;font-weight:700;color:var(--accent)}
 .empty{padding:40px 4px;color:var(--muted)}
 @media (max-width:860px){.row{grid-template-columns:64px minmax(0,1fr)}.row .d b{font-size:18px}}
+.slide{margin:0 0 14px;animation:rise .5s .3s both}
+.slide img{display:block;width:100%;max-width:100%;border:1px solid var(--line);background:#fff}
+.slide figcaption{font-size:14px;color:var(--muted);margin-top:4px}
