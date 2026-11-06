@@ -164,3 +164,17 @@ ul.pts li b{color:var(--ink)}
 .slide{margin:0 0 14px;animation:rise .5s .3s both}
 .slide img{display:block;width:100%;max-width:100%;border:1px solid var(--line);background:#fff}
 .slide figcaption{font-size:14px;color:var(--muted);margin-top:4px}
+.terms{display:grid;gap:0}
+.term{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;padding:14px 0;border-bottom:1px solid var(--line);animation:rise .45s both}
+.term b{font-family:var(--display);font-size:21px;font-weight:900;letter-spacing:-.01em}
+.term p{margin:4px 0 0;max-width:70ch}
+.term .why{font-size:15px;color:var(--muted)}
+.vthumb{all:unset;cursor:pointer;display:block;position:relative;width:100%}
+.vthumb img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--soft)}
+.vthumb .play{position:absolute;left:50%;top:38%;width:54px;height:38px;margin:-19px 0 0 -27px;background:rgba(17,23,37,.82);border-radius:8px}
+.vthumb .play::after{content:"";position:absolute;left:22px;top:11px;border-left:14px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent}
+.vthumb:hover .play{background:var(--hot)}
+.vthumb .vt{display:block;font-size:14px;font-weight:600;margin-top:6px;line-height:1.4}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:12px 0 16px}
+.vgrid .vn{font-size:13px;color:var(--muted);margin:3px 0 0}
+@media (max-width:860px){.term{grid-template-columns:1fr}}

@@ -6,6 +6,7 @@ const S=D.sections||[];
 const LBL=D.sectionLabel||"발표";
 const CATS=[
  {id:"over",name:"한눈에",sub:"결론·큰 숫자"},
+ ...(D.glossary&&D.glossary.length?[{id:"terms",name:"용어 풀이",sub:`어려운 말 ${D.glossary.length}개 · 영상`}]:[]),
  {id:"sec",name:`${LBL} ${S.length}개`,sub:"하나씩 상세"},
  ...(D.flow&&D.flow.length?[{id:"flow",name:"공통 흐름",sub:"겹치는 메시지"}]:[]),
  {id:"apply",name:"우리 회사 적용",sub:`쓸 것 ${(D.apply||[]).length}가지`},
@@ -29,6 +30,13 @@ function tableHTML(t){if(!t||t.length<2)return"";return `<div class="tbl"><table
 function vidHTML(v){const id=ytId(v.url);if(!id)return `<p><a href="${v.url}" target="_blank" rel="noopener">${v.title||"영상 열기"}</a></p>`;
  const tm=String(v.url).match(/[?&]t=(\d+)/);
  return `<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${id}${tm?"?start="+tm[1]:""}" title="${esc(v.title)}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`}
+function thumb(v){const id=ytId(v.url);if(!id)return `<a href="${v.url}" target="_blank" rel="noopener">${esc(v.title)}</a>`;
+ return `<button class="vthumb" data-yt="${id}" title="${esc(v.title)}"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy"><span class="play"></span><span class="vt">${esc(v.title)}${v.len?` · ${v.len}`:""}</span></button>`}
+function viewTerms(){
+ const G=D.glossary||[];
+ return `<span class="tag">처음 보는 말은 여기서 먼저</span><h2 class="kin">${kin(D.glossaryHeadline||"어려운 말을 쉬운 말로 바꿨습니다",["쉬운","말로"])}</h2>
+ <div class="terms">${G.map((g,i)=>`<div class="term" style="animation-delay:${i*50}ms"><div class="tw"><b>${g.term}</b><p>${g.easy}</p>${g.why?`<p class="why">우리 일과의 관계: ${g.why}</p>`:""}</div>${g.video?thumb(g.video):"<span></span>"}</div>`).join("")}</div>
+ <p class="src">영상은 눌러서 이 화면에서 바로 봅니다. 출처: 각 영상 채널.</p>`}
 function countUp(root){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
  root.querySelectorAll("[data-count]").forEach(el=>{const raw=el.dataset.count;const m=raw.match(/^([\d,.]+)(.*)$/);if(!m)return;
   const target=parseFloat(m[1].replace(/,/g,""));if(!isFinite(target))return;const dec=(m[1].split(".")[1]||"").length;const tail=m[2];const ie=el.querySelector("i");const unit=ie?ie.outerHTML:"";
@@ -72,7 +80,7 @@ function viewApply(){
  ${A.map((a,i)=>`<div class="apply" style="animation-delay:${i*70}ms"><span class="k">${i+1}</span><div><h4>${a.k}<span class="pri">${a.p||""}</span></h4><p>${a.d}</p><span class="meta">근거: ${a.r||""}${a.who?" · 맡을 곳: "+a.who:""}</span></div></div>`).join("")}`}
 function viewMedia(){
  const M=D.media||{};const V=M.videos||[];
- const vids=V.length?`<h3>영상</h3>${vidHTML(V[0])}<div class="tbl vlist"><table><tr><th>영상</th><th>길이</th><th>내용</th></tr>${V.map(v=>`<tr><td><a href="${v.url}" target="_blank" rel="noopener">${v.title}</a></td><td class="n">${v.len||""}</td><td>${v.note||""}</td></tr>`).join("")}</table></div>`:"";
+ const vids=V.length?`<h3>영상 ${V.length}편</h3>${vidHTML(V[0])}<div class="vgrid">${V.map(v=>`<div>${thumb(v)}<p class="vn">${v.note||""}</p></div>`).join("")}</div>`:"";
  return `<span class="tag">${D.date} 확인</span><h2 class="kin">${kin(M.headline||(V.length?`영상 ${V.length}편을 함께 볼 수 있습니다`:"공개된 영상이 없습니다"),[])}</h2>
  <div class="cols"><div>${vids}${M.checked&&M.checked.length?`<h3>찾아본 곳</h3>${tableHTML([["확인한 곳","결과"],...M.checked])}`:""}</div>
  <div><h3>원문·자료</h3>${tableHTML([["자료","열기"],...(M.docs||[]).map(d=>[d[0],`<a href="${d[1]}" target="_blank" rel="noopener">열기</a>`])])}</div></div>`}
@@ -85,7 +93,7 @@ function viewSrc(){
 function render(){
  $("cats").innerHTML=CATS.map(c=>`<button data-c="${c.id}" aria-current="${c.id===cur.c}">${c.name}<small>${c.sub}</small></button>`).join("");
  const st=$("stage");st.style.padding=cur.c==="sec"?"0":"";
- st.innerHTML={over:viewOver,sec:viewSec,flow:viewFlow,apply:viewApply,media:viewMedia,src:viewSrc}[cur.c]();
+ st.innerHTML={over:viewOver,terms:viewTerms,sec:viewSec,flow:viewFlow,apply:viewApply,media:viewMedia,src:viewSrc}[cur.c]();
  st.scrollTop=0;const d=$("tdetail");if(d)d.scrollTop=0;
  const a=document.querySelector('#tlist [aria-current="true"]');if(a)a.scrollIntoView({block:"nearest",inline:"nearest"});
  countUp(st);ls.set(key,cur);
@@ -97,6 +105,7 @@ $("stamp").textContent=`${D.topic} · ${D.date} 정리 · 디알컴퍼니`;
 document.title=D.title+" · DRC 지식창고";
 $("cats").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur={c:b.dataset.c,t:cur.t||0};render()});
 $("stage").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.yt){const f=document.createElement("div");f.className="vid";f.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;b.replaceWith(f);return}
  if(b.dataset.t!=null){cur={c:"sec",t:+b.dataset.t};render()}else if(b.dataset.cat){cur={c:b.dataset.cat,t:cur.t};render()}});
 render();
 })();
