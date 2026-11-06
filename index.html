@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>DRC 지식창고</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="DRC 지식창고">
+<meta property="og:description" content="강연·포럼·협회·정부 발표·심화 기사를 정리해 쌓는 디알컴퍼니 지식창고. 매일 07:00·15:00 새 자료.">
+<meta property="og:image" content="https://drc2104.github.io/drc-knowledge/assets/og.png">
+<meta property="og:url" content="https://drc2104.github.io/drc-knowledge/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/kb.css">
+</head>
+<body>
+<div class="app">
+  <header class="band">
+    <h1>DRC <em>지식창고</em></h1>
+    <span>강연 · 포럼 · 협회 · 정부 발표 · 심화 기사를 정리해 쌓습니다</span>
+    <span class="stamp" id="stamp"></span>
+  </header>
+  <div class="wrap">
+    <nav class="cats topics" id="cats" aria-label="주제"></nav>
+    <main><div class="stage">
+      <div class="lib-head">
+        <input id="q" type="search" placeholder="제목·내용 검색" aria-label="검색">
+        <span class="sched">매일 07:00 · 15:00 새 자료 2건 (주말 포함)</span>
+      </div>
+      <h2 id="ttl"></h2>
+      <div id="list"></div>
+    </div></main>
+  </div>
+</div>
+<script id="lib-data" type="application/json">{"updated": "2026-11-06 12:14", "topics": [{"name": "마케팅", "sub": "소셜·인플루언서·광고", "color": "#2343d6"}, {"name": "시니어", "sub": "시니어 비즈니스·소비", "color": "#b25a12"}, {"name": "AI 테크", "sub": "AI 기술·기업 활용", "color": "#6b3fb8"}, {"name": "일본 시니어", "sub": "일본 고령 시장", "color": "#c0392b"}, {"name": "장기요양급여", "sub": "제도·고시·급여", "color": "#1f7a5a"}, {"name": "협회(벤처·이노비즈)", "sub": "협회 발표·지원 정책", "color": "#3d6f8f"}, {"name": "화장품 시장", "sub": "제품 변화·시장", "color": "#c2447a"}, {"name": "고령친화용품", "sub": "복지용구·우수제품", "color": "#7a6a1f"}], "items": [{"id": "2026-11-06-futuring26", "date": "2026-11-06", "slot": "수동", "topic": "마케팅", "type": "컨퍼런스 강연", "title": "FUTURING 26 강연 정리", "subtitle": "피처링 소셜 마케팅 컨퍼런스 · 세션 14개", "headline": "인플루언서 마케팅은 이제 감이 아니라 기준과 AI 실행의 싸움이다", "when": "2026.10.28(수) 09:30~17:30", "summary": ["돈이 소셜로 몰린다.", "팔로워 수는 믿을 지표가 아니다.", "AI는 답이 아니라 일을 끝내는 쪽으로 간다."]}]}</script>
+<script>
+(function(){
+const L=JSON.parse(document.getElementById("lib-data").textContent);
+const $=id=>document.getElementById(id);
+let topic="전체";try{topic=localStorage.getItem("kb_topic")||"전체"}catch(e){}
+if(topic!=="전체"&&!L.topics.find(t=>t.name===topic))topic="전체";
+function render(){
+  const q=$("q").value.trim();
+  const cnt=n=>n==="전체"?L.items.length:L.items.filter(i=>i.topic===n).length;
+  $("cats").innerHTML=[{name:"전체",sub:"모든 자료"},...L.topics].map(t=>`<button data-t="${t.name}" aria-current="${t.name===topic}">${t.name}<span class="cnt">${cnt(t.name)}</span><small>${t.sub||""}</small></button>`).join("");
+  let rows=L.items.filter(i=>topic==="전체"||i.topic===topic);
+  if(q)rows=rows.filter(i=>(i.title+i.subtitle+i.headline+i.summary.join(" ")+i.topic+i.type).includes(q));
+  $("ttl").textContent=(topic==="전체"?"전체 자료":topic)+" "+rows.length+"건";
+  $("list").innerHTML=rows.length?rows.map((i,k)=>{const tc=(L.topics.find(t=>t.name===i.topic)||{}).color||"";
+    return `<a class="row" href="items/${i.id}/" style="animation-delay:${k*50}ms;${tc?"--tc:"+tc:""}"><span class="d"><b>${i.date.slice(5).replace("-",".")}</b>${i.slot||""}</span><span><span class="meta"><span class="tp">${i.topic}</span>${i.type}${i.when?" · "+i.when:""}</span><h3>${i.title}</h3><p>${i.headline}</p><p>${i.summary.map((s,j)=>(j+1)+". "+s).join("<br>")}</p><span class="go">자세히 보기 →</span></span></a>`}).join("")
+    :`<div class="empty">아직 이 주제 자료가 없습니다. 주제는 순서대로 돌아가며 매일 2건씩 쌓입니다.</div>`;
+  try{localStorage.setItem("kb_topic",topic)}catch(e){}
+}
+$("stamp").textContent="최근 갱신 "+L.updated;
+$("cats").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;topic=b.dataset.t;render()});
+$("q").addEventListener("input",render);
+render();
+})();
+</script>
+</body>
+</html>
