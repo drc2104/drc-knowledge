@@ -27,7 +27,8 @@ function barsHTML(b){if(!b||!b.rows||!b.rows.length)return"";const mx=Math.max(.
 function shiftHTML(s){if(!s)return"";return `<div class="shift"><span class="from">${s.from}</span><span class="arrow"></span><span class="to">${s.to}</span><small>${s.cap||""}</small></div>`}
 function tableHTML(t){if(!t||t.length<2)return"";return `<div class="tbl"><table><tr>${t[0].map(h=>`<th>${h}</th>`).join("")}</tr>${t.slice(1).map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table></div>`}
 function vidHTML(v){const id=ytId(v.url);if(!id)return `<p><a href="${v.url}" target="_blank" rel="noopener">${v.title||"영상 열기"}</a></p>`;
- return `<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${id}" title="${esc(v.title)}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`}
+ const tm=String(v.url).match(/[?&]t=(\d+)/);
+ return `<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${id}${tm?"?start="+tm[1]:""}" title="${esc(v.title)}" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`}
 function countUp(root){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
  root.querySelectorAll("[data-count]").forEach(el=>{const raw=el.dataset.count;const m=raw.match(/^([\d,.]+)(.*)$/);if(!m)return;
   const target=parseFloat(m[1].replace(/,/g,""));if(!isFinite(target))return;const dec=(m[1].split(".")[1]||"").length;const tail=m[2];const ie=el.querySelector("i");const unit=ie?ie.outerHTML:"";
