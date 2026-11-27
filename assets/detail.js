@@ -1,6 +1,8 @@
 /* DRC 지식창고 상세 화면 — item-data(JSON) 하나로 화면 전체를 그린다 (2026-11-06) */
 (function(){
 const D=JSON.parse(document.getElementById("item-data").textContent);
+// 11/27 대표: 소식·발표의 '우리에게:' 줄은 파란 글자·연두 바탕
+(D.sections||[]).forEach(s=>{s.pts=(s.pts||[]).map(p=>String(p).replace(/(<b>\s*우리에게\s*:?\s*<\/b>:?)\s*(.+)$/s,(m,a,b)=>`${a} ⟦${b.replace(/[⟦⟧]/g,"")}⟧`))});
 const $=id=>document.getElementById(id);
 const S=D.sections||[];
 const LBL=D.sectionLabel||"발표";
@@ -18,10 +20,12 @@ const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.par
 let cur=ls.get(key,{c:"over",t:0});
 if(!CATS.find(c=>c.id===cur.c)||cur.t>=S.length)cur={c:"over",t:0};
 const esc=s=>String(s==null?"":s);
+// 11/27 대표: 우리 회사에 영향을 주는 구절 ⟦…⟧ = 파란 글자·연두 바탕 (속성값 안의 기호는 지움)
+const mk=h=>String(h).replace(/="[^"]*"/g,m=>m.replace(/[⟦⟧]/g,"")).replace(/⟦([^⟦⟧]*)⟧/g,'<mark class="us">$1</mark>').replace(/[⟦⟧]/g,"");
 const circ=n=>n<=20?"①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳"[n-1]:`(${n})`;
 const ytId=u=>{const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/);return m?m[1]:null};
 
-function kin(text,hl){let i=0;return esc(text).split(" ").map(w=>{const h=hl&&hl.some(x=>x&&w.includes(x));return `<span class="w${h?" hl":""}" style="animation-delay:${(i++)*55}ms">${w}</span>`}).join(" ")}
+function kin(text,hl){let i=0,us=false;return String(text==null?"":text).split(" ").map(w=>{const a=us||w.includes("⟦");if(w.includes("⟦"))us=true;if(w.includes("⟧"))us=false;w=w.replace(/[⟦⟧]/g,"");const h=hl&&hl.some(x=>x&&w.includes(x));return `<span class="w${h?" hl":""}${a?" us":""}" style="animation-delay:${(i++)*55}ms">${w}</span>`}).join(" ")}
 function numsHTML(a){if(!a||!a.length)return"";return `<div class="nums">${a.map(([v,u,l,hot],i)=>`<div class="num${hot?" hot":""}" style="animation:rise .5s ${i*90}ms both"><b data-count="${v}">${v}<i>${u||""}</i></b><span>${l}</span></div>`).join("")}</div>`}
 function barsHTML(b){if(!b||!b.rows||!b.rows.length)return"";const mx=Math.max(...b.rows.map(r=>+r[1]||0))||1;
  return `<div class="chart"><div class="t">${b.t||""}</div><div class="bars">${b.rows.map((r,i)=>`<span class="l">${r[0]}</span><span class="track"><span class="fill ${r[2]||""}" style="width:${Math.max(.8,(+r[1]||0)/mx*100)}%;animation-delay:${200+i*150}ms"></span></span><span class="v">${(+r[1]).toLocaleString("ko-KR")}${b.u||""}</span>`).join("")}</div></div>`}
@@ -93,16 +97,16 @@ function viewSrc(){
 function render(){
  $("cats").innerHTML=CATS.map(c=>`<button data-c="${c.id}" aria-current="${c.id===cur.c}">${c.name}<small>${c.sub}</small></button>`).join("");
  const st=$("stage");st.style.padding=cur.c==="sec"?"0":"";
- st.innerHTML={over:viewOver,terms:viewTerms,sec:viewSec,flow:viewFlow,apply:viewApply,media:viewMedia,src:viewSrc}[cur.c]();
+ st.innerHTML=mk({over:viewOver,terms:viewTerms,sec:viewSec,flow:viewFlow,apply:viewApply,media:viewMedia,src:viewSrc}[cur.c]());
  st.scrollTop=0;const d=$("tdetail");if(d)d.scrollTop=0;
  const a=document.querySelector('#tlist [aria-current="true"]');if(a)a.scrollIntoView({block:"nearest",inline:"nearest"});
  countUp(st);ls.set(key,cur);
 }
 const ev=D.event||{};
-$("h1").innerHTML=esc(D.title).replace(/(\d+)/,"<em>$1</em>");
-$("evline").textContent=[ev.host&&ev.host+" 주최",ev.when,ev.where,ev.theme&&`주제 "${ev.theme}"`].filter(Boolean).join(" · ");
+$("h1").innerHTML=mk(D.title).replace(/(\d+)/,"<em>$1</em>");
+$("evline").textContent=[ev.host&&ev.host+" 주최",ev.when,ev.where,ev.theme&&`주제 "${ev.theme}"`].filter(Boolean).join(" · ").replace(/[⟦⟧]/g,"");
 $("stamp").textContent=`${D.topic} · ${D.date} 정리 · 디알컴퍼니`;
-document.title=D.title+" · DRC 지식창고";
+document.title=D.title.replace(/[⟦⟧]/g,"")+" · DRC 지식창고";
 $("cats").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;cur={c:b.dataset.c,t:cur.t||0};render()});
 $("stage").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
  if(b.dataset.yt){const f=document.createElement("div");f.className="vid";f.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;b.replaceWith(f);return}

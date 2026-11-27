@@ -178,3 +178,6 @@ ul.pts li b{color:var(--ink)}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:12px 0 16px}
 .vgrid .vn{font-size:13px;color:var(--muted);margin:3px 0 0}
 @media (max-width:860px){.term{grid-template-columns:1fr}}
+
+/* 11/27 대표: 우리 회사 영향 구절 */
+mark.us,.w.us{color:#1745d6;background:#c8f59a;font-weight:700;padding:0 .18em;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
